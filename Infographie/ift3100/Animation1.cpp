@@ -9,14 +9,23 @@
 #include <fstream>
 #include <iostream>
 #include "Animation1.h"
+#include "Camera.h"
 
 using namespace std;
 using glm::vec3;
 using glm::mat4;
+
+
 GLuint programID;
 GLuint numIndices;
 int mBackground = 1;
+
 float mRotation = 0.0f;
+
+int Compteur = 0;
+bool blnZoom = true;
+int Direction = 1;
+Camera camera;
 
 Animation1::~Animation1()
 {
@@ -41,7 +50,7 @@ void Animation1::initializeGL()
 	
 	//mise en place d'un timer de refresh
 	QObject::connect(&mDrawTimer, SIGNAL(timeout()), this, SLOT(update()));
-	mDrawTimer.start(1000.0f);
+	mDrawTimer.start(500.0f);
 }
 
 void Animation1::paintGL()
@@ -58,20 +67,72 @@ void Animation1::paintGL()
 	}
 	mBackground *= -1;
 	
+	if (blnZoom)
+	{
+		if (Direction == 1)
+		{
+
+			camera.moveBackward();
+			Compteur++;
+		}
+		else
+		{
+			camera.moveForward();
+			Compteur++;
+		}
+	}
+	else
+	{
+		if (Direction == 1)
+		{
+
+			camera.strafeLeft();
+			Compteur++;
+		}
+		else
+		{
+			camera.strafeRight();
+			Compteur++;
+		}
+	}
+	
+	
+	
 	//Dessin des cubes avec la rotation d'un des cubes
 	mat4 projectionMatrix = glm::perspective(1.6f, ((float)width()) / height(), 0.1f, 10.0f);
 	mat4 fullTransforms[] =
 	{
-		projectionMatrix * glm::translate(vec3(-1.0f, 0.0f, -3.0f)) * glm::rotate(0.69f + mRotation, vec3(1.0f, 0.0f, 0.0f)) * glm::scale(vec3(0.5f, 1.0f, 1.0f)),
-		projectionMatrix * glm::translate(vec3(1.5f, 0.0f, -3.75f)) * glm::rotate(2.2f, vec3(0.0f, 1.0f, 0.0f))
+		projectionMatrix * camera.getViewMatrix() * glm::translate(vec3(-1.0f, 0.0f, -3.0f)) * glm::rotate(0.69f + mRotation, vec3(1.0f, 0.0f, 0.0f)) * glm::scale(vec3(0.5f, 1.0f, 1.0f)),
 	};
 	glBufferData(GL_ARRAY_BUFFER, sizeof(fullTransforms), fullTransforms, GL_DYNAMIC_DRAW);
 
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, width(), height());
 	glDrawElementsInstanced(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0, 2);
-
+	
 	mRotation += 0.1f;
+	
+	if (Compteur == 10 && blnZoom)
+	{
+		Direction *= -1;
+	}
+	else if (Compteur == 20 && blnZoom)
+	{
+		blnZoom = false;
+		Direction *= -1;
+		Compteur = 0;
+	}
+	else if (Compteur == 25 && !blnZoom)
+	{
+		Direction *= -1;
+	}
+	else if (Compteur == 50 && !blnZoom)
+	{
+		blnZoom = true;
+		Direction *= -1;
+		Compteur = 0;
+	}
+	
 }
 
 void Animation1::sendDataToOpenGL()
