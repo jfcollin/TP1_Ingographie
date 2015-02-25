@@ -11,6 +11,7 @@ void OpenGL::initializeGL()
 		// glewInit ne fonctionne pas...
 		fprintf(stderr, "Erreur: %s\n", glewGetErrorString(err));
 	}
+	
 }
 
 void OpenGL::paintGL()

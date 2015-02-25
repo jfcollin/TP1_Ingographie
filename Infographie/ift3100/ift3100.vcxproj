@@ -89,6 +89,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OpenGL.cpp" />
     <ClCompile Include="Animation1.cpp" />
+    <ClCompile Include="Primitives\ShapeGenerator.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +123,9 @@
     <ClInclude Include="Include\Camera.hpp" />
     <ClInclude Include="Include\Macros.hpp" />
     <ClInclude Include="Include\Shader.hpp" />
+    <ClInclude Include="Primitives\ShapeData.h" />
+    <ClInclude Include="Primitives\ShapeGenerator.h" />
+    <ClInclude Include="Primitives\Vertex.h" />
     <CustomBuild Include="OpenGL.h" />
   </ItemGroup>
   <ItemGroup>
@@ -135,6 +139,10 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\qrc_%(Filename).cpp;%(Outputs)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\rcc.exe" -name "%(Filename)" -no-compress "%(FullPath)" -o .\GeneratedFiles\qrc_%(Filename).cpp</Command>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="FragmentShaderCode.glsl" />
+    <None Include="VertexShaderCode.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

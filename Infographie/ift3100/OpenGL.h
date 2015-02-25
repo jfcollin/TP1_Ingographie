@@ -3,6 +3,7 @@
 
 #include <qopenglwidget.h>
 
+
 class OpenGL : public QOpenGLWidget
 {
 protected:
@@ -12,7 +13,6 @@ protected:
 public:
 	OpenGL(QWidget *parent) : QOpenGLWidget(parent) {}
 	virtual ~OpenGL() {}
-
 };
 
 #endif // !OPENGL_H
