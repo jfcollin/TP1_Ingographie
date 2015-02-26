@@ -15,6 +15,7 @@ protected:
 public:
 	Animation1(QWidget *parent) : OpenGL(parent), mDrawTimer(this) {}
 	~Animation1();
+	void enregistrerImage();
 private:
 	QTimer mDrawTimer;
 	bool checkShaderStatus(GLuint shaderID);

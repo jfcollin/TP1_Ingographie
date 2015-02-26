@@ -10,7 +10,7 @@
 #include <iostream>
 #include "Animation1.h"
 #include "Camera.h"
-
+#include <qfiledialog.h>
 using namespace std;
 using glm::vec3;
 using glm::mat4;
@@ -55,16 +55,10 @@ void Animation1::initializeGL()
 
 void Animation1::paintGL()
 {
-	//Changement du background selon le timer
-	if (mBackground == 1){
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	}
-	else
-	{
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-		glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-	}
+	
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	
 	mBackground *= -1;
 	
 	if (blnZoom)
@@ -246,7 +240,7 @@ bool Animation1::checkProgramStatus(GLuint programID)
 		glGetProgramInfoLog(programID, infoLogLength, &bufferSize, buffer);
 		cout << buffer << endl << endl;
 		delete[] buffer;
-
+		
 		return false;
 	}
 	return true;
@@ -265,4 +259,12 @@ string Animation1::readShaderCode(const char* fileName)
 	input.close();
 
 	return fileRead;
+}
+
+void Animation1::enregistrerImage(){
+	mDrawTimer.stop();
+	QImage imageFrame = grabFramebuffer();
+	QString file = QFileDialog::getSaveFileName(this, "Save as...", "name", "PNG (*.png);; BMP (*.bmp);;TIFF (*.tiff *.tif);; JPEG (*.jpg *.jpeg)");
+	imageFrame.save(file, "JPEG");
+	mDrawTimer.start(500.0f);
 }

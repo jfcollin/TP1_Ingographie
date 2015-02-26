@@ -16,6 +16,7 @@ void OpenGL::initializeGL()
 
 void OpenGL::paintGL()
 {
-
+	
+	
 }
 

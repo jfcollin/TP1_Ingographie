@@ -12,6 +12,7 @@ protected:
 public:
 	Animation2(QWidget *parent) : OpenGL(parent) {}
 	~Animation2();
+	void enregistrerImage();
 };
 
 #endif // !ANIMATION2_H
