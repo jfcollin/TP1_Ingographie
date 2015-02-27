@@ -8,6 +8,8 @@ class Animation2 : public OpenGL
 protected:
 	virtual void initializeGL();
 	virtual void paintGL();
+	void installerShader();
+	void envoyerData();
 
 public:
 	Animation2(QWidget *parent) : OpenGL(parent) {}

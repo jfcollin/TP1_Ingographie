@@ -13,13 +13,13 @@ ShapeData ShapeGenerator::makeTriangle()
 
 	Vertex triangle[] =
 	{
-		vec3(+0.0f, +1.0f, -0.5f),
+		vec3(-1.0f, +0.0f, +0.0f),
 		vec3(+1.0f, +0.0f, +0.0f),
 
-		vec3(-1.0f, -1.0f, -0.5f),
+		vec3(+0.0f, +1.0f, +0.0f),
 		vec3(+0.0f, +1.0f, +0.0f),
 
-		vec3(+1.0f, -1.0f, -0.5f),
+		vec3(+1.0f, +0.0f, +0.0f),
 		vec3(+0.0f, +0.0f, +1.0f),
 	};
 

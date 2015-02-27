@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>790</width>
-    <height>582</height>
+    <width>1024</width>
+    <height>768</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -90,7 +90,14 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="Animation2" name="openGLWidget_2"/>
+         <widget class="Animation2" name="openGLWidget_2">
+          <property name="mouseTracking">
+           <bool>false</bool>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -103,7 +110,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>790</width>
+     <width>1024</width>
      <height>21</height>
     </rect>
    </property>

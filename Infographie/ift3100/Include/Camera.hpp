@@ -3,6 +3,7 @@
 
 #include <glm\glm.hpp>
 #include <glm\gtx\transform.hpp>
+#include <Macros.hpp>
 
 
 const float MOUVEMENT_SPEED = 0.1f;
@@ -38,8 +39,8 @@ public:
 		glm::vec3 toRotateAround = glm::cross(viewDirection, UP);
 
 		glm::mat4 rotator =
-			glm::rotate(-(mouseDelta.x * 3.1416f / 180.0f) * ROTATIONAL_SPEED, UP) *
-			glm::rotate(-(mouseDelta.y * 3.1416f / 180.0f) * ROTATIONAL_SPEED, toRotateAround);
+			glm::rotate(-(mouseDelta.x * PI / 180.0f) * ROTATIONAL_SPEED, UP) *
+			glm::rotate(-(mouseDelta.y * PI / 180.0f) * ROTATIONAL_SPEED, toRotateAround);
 
 		viewDirection = glm::mat3(rotator) * viewDirection;
 

@@ -18,6 +18,7 @@ private:
 	QAction *exportAct1;
 	QAction *exportAct2;
 	QToolBar *fileToolBar;
+
 private slots:
 	void exporterScene1();
 	void exporterScene2();

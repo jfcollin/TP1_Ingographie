@@ -1,7 +1,7 @@
 #include "Window.h"
 #include <qfiledialog.h>
-Window::Window(QWidget *parent)
-	: QMainWindow(parent)
+
+Window::Window(QWidget *parent) : QMainWindow(parent)
 {
 	ui.setupUi(this);
 	exportAct1 = new QAction(QIcon(":/images/new.png"), tr("&Scene1"), this);
@@ -13,11 +13,13 @@ Window::Window(QWidget *parent)
 	fileMenu->addAction(exportAct1);
 	fileMenu->addAction(exportAct2);
 	fileMenu->addSeparator();
+	QKeySequence racourci1(Qt::CTRL + Qt::Key_1);
+	QKeySequence racourci2(Qt::CTRL + Qt::Key_2);
+	exportAct1->setShortcut(racourci1);
+	exportAct2->setShortcut(racourci2);
+
 	/*connect(ui.menuBar,&QMenu::,
 		ui.openGLWidget, &Animation1::enregistrerImage);*/
-	
-	
-	
 }
 
 Window::~Window()
