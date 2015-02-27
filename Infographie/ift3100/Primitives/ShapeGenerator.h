@@ -3,11 +3,15 @@
 
 #include <Primitives\ShapeData.h>
 
+typedef unsigned int uint;
+
 class ShapeGenerator
 {
 public:
 	static ShapeData makeTriangle();
 	static ShapeData makeCube();
+	static ShapeData makePyramid();
+
 };
 
 #endif // SHAPEGENERATOR_H

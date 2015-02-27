@@ -17,11 +17,13 @@ private:
 	QMenu *fileMenu;
 	QAction *exportAct1;
 	QAction *exportAct2;
+	QAction *exportAct3;
 	QToolBar *fileToolBar;
 
 private slots:
 	void exporterScene1();
 	void exporterScene2();
+	void exporterScene3();
 };
 
 #endif // WINDOW_H

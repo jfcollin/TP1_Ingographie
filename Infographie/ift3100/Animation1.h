@@ -2,24 +2,24 @@
 #define ANIMATION1_H
 
 #include "OpenGL.h"
-#include <qtimer.h>
 
 class Animation1 : public OpenGL
 {
 protected:
 	virtual void initializeGL();
 	virtual void paintGL();
-	void sendDataToOpenGL();
-	void installShaders();
+	void installerShader();
+	void envoyerData();
+
+	void mouseMoveEvent(QMouseEvent*);
+	void keyPressEvent(QKeyEvent*);
 
 public:
-	Animation1(QWidget *parent) : OpenGL(parent), mDrawTimer(this) {}
+	Animation1(QWidget *parent) : OpenGL(parent) {}
 	~Animation1();
 	void enregistrerImage();
+
 private:
-	QTimer mDrawTimer;
-	bool checkShaderStatus(GLuint shaderID);
-	bool checkProgramStatus(GLuint programID);
 	std::string readShaderCode(const char* fileName);
 };
 

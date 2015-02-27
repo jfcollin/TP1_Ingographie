@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 	Window w;
 	w.show();
 
-	// Initialisation de GLEW
+	/*// Initialisation de GLEW
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 	{
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 	if (!GLEW_VERSION_2_1)
 	{
 		fprintf(stderr, "OpenGL 2.1 non supporté\n");
-	}
+	}*/
 
 
 	return a.exec();

@@ -10,11 +10,17 @@
 #include "Animation2.h"
 
 
+using glm::vec2;
+using glm::vec3;
+using glm::vec4;
+using glm::mat4;
+
+
 /*-----------------------------------------------------------------------------
 *  CODE DU SHADER
 *-----------------------------------------------------------------------------*/
 
-const char * vert = GLSL(
+const char * vert2 = GLSL(
 	
 	150,  // version de GLSL
 
@@ -35,15 +41,16 @@ const char * vert = GLSL(
 	}
 );
 
-const char * frag = GLSL(
+const char * frag2 = GLSL(
 	
 	150,  // version de GLSL
 
 	in vec3 vertexShaderColor;
+	out vec4 fragmentShaderColor;
 
 	void main()
 	{
-		gl_FragColor = vec4(vertexShaderColor, 1.0);
+		fragmentShaderColor = vec4(vertexShaderColor, 1.0);
 	}
 );
 
@@ -52,16 +59,16 @@ const char * frag = GLSL(
 *  VARIABLES GLOBALES
 *-----------------------------------------------------------------------------*/
 
-Shader * shader;
+Shader * shader2;
 
 // ID de Vertex Attribute
-GLuint positionID, colorID;
+GLuint positionID2, colorID2;
 // Buffer ID
-GLuint bufferID, elementID;
+GLuint bufferID2, elementID2;
 // Array ID
-GLuint arrayID;
+GLuint arrayID2;
 // ID Uniform
-GLuint modelID, viewID, projectionID;
+GLuint modelID2, viewID2, projectionID2;
 
 
 
@@ -76,16 +83,16 @@ void Animation2::initializeGL()
 void Animation2::installerShader()
 {
 	// Création du shader
-	shader = new Shader(vert, frag);
+	shader2 = new Shader(vert2, frag2);
 
 	// attribut locations
-	positionID = glGetAttribLocation(shader->id(), "position");
-	colorID = glGetAttribLocation(shader->id(), "color");
+	positionID2 = glGetAttribLocation(shader2->id(), "position");
+	colorID2 = glGetAttribLocation(shader2->id(), "color");
 
 	// uniform locations
-	modelID = glGetUniformLocation(shader->id(), "model");
-	viewID = glGetUniformLocation(shader->id(), "view");
-	projectionID = glGetUniformLocation(shader->id(), "projection");
+	modelID2 = glGetUniformLocation(shader2->id(), "model");
+	viewID2 = glGetUniformLocation(shader2->id(), "view");
+	projectionID2 = glGetUniformLocation(shader2->id(), "projection");
 }
 
 void Animation2::envoyerData()
@@ -93,24 +100,24 @@ void Animation2::envoyerData()
 	ShapeData triangle = ShapeGenerator::makeTriangle();
 
 	// vertex array object
-	glGenVertexArrays(1, &arrayID);
-	glBindVertexArray(arrayID);
+	glGenVertexArrays(1, &arrayID2);
+	glBindVertexArray(arrayID2);
 
 	// vertex buffer object
-	glGenBuffers(1, &bufferID);
-	glBindBuffer(GL_ARRAY_BUFFER, bufferID);
+	glGenBuffers(1, &bufferID2);
+	glBindBuffer(GL_ARRAY_BUFFER, bufferID2);
 	glBufferData(GL_ARRAY_BUFFER, triangle.vertexBufferSize(), triangle.vertices, GL_STATIC_DRAW);
 
 	// element array buffer object
-	glGenBuffers(1, &elementID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementID);
+	glGenBuffers(1, &elementID2);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementID2);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangle.indexBufferSize(), triangle.indices, GL_STATIC_DRAW);
 
 	// vertex attributes
-	glEnableVertexAttribArray(positionID);
-	glEnableVertexAttribArray(colorID);
-	glVertexAttribPointer(positionID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-	glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) sizeof(glm::vec3));
+	glEnableVertexAttribArray(positionID2);
+	glEnableVertexAttribArray(colorID2);
+	glVertexAttribPointer(positionID2, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
+	glVertexAttribPointer(colorID2, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*) sizeof(vec3));
 
 	// unbind
 	glBindVertexArray(0);
@@ -130,23 +137,23 @@ void Animation2::paintGL()
 
 
 	// Bind Shader, Vertex Array Object
-	glUseProgram(shader->id());
-	glBindVertexArray(arrayID);
+	shader2->bind();
+	glBindVertexArray(arrayID2);
 
 
 	/*-----------------------------------------------------------------------------
-	*  Matrices de View et de Projection
+	*  Matrices : View & Projection
 	*-----------------------------------------------------------------------------*/
 
-	glm::vec3 eyepos = glm::vec3(cos(time) * 1.0, 0, sin(time) * 5.0);
+	vec3 eyepos = vec3(cos(time) * 1.0, 0, sin(time) * 5.0);
 
-	//                            eye         target             up
-	glm::mat4 view = glm::lookAt(eyepos, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	//                      eye     target         up
+	mat4 view = glm::lookAt(eyepos, vec3(0, 0, 0), vec3(0, 1, 0));
 
-	glm::mat4 projection = glm::perspective(PI / 3.0f, ((float)width()) / height(), 0.1f, 10.0f);
+	mat4 projection = glm::perspective(PI / 3.0f, ((float)width()) / height(), 0.1f, 10.0f);
 	
-	glUniformMatrix4fv(viewID, 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(projectionID, 1, GL_FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(viewID2, 1, GL_FALSE, glm::value_ptr(view));
+	glUniformMatrix4fv(projectionID2, 1, GL_FALSE, glm::value_ptr(projection));
 
 
 	/*-----------------------------------------------------------------------------
@@ -164,35 +171,38 @@ void Animation2::paintGL()
 			{
 				int idx = i * len * len + j * len + k;
 
-				glm::vec3 trs(-len / 2.0 + i, -len / 2.0 + j, -len / 2.0 + k);
-				glm::vec3 axis(0, 0, 1);
+				vec3 trs(-len / 2.0 + i, -len / 2.0 + j, -len / 2.0 + k);
+				vec3 axis(0, 0, 1);
 				float rad = time * PI;
-				glm::vec3 vscale(1.0 - (float)idx / total);
+				vec3 vscale(1.0 - (float)idx / total);
 
-				glm::mat4 translation = glm::translate(glm::mat4(), trs);
-				glm::mat4 rotation = glm::rotate(glm::mat4(), rad, axis);
-				glm::mat4 scale = glm::scale(glm::mat4(), vscale);
+				mat4 translation = glm::translate(mat4(), trs);
+				mat4 rotation = glm::rotate(mat4(), rad, axis);
+				mat4 scale = glm::scale(mat4(), vscale);
 
-				glm::mat4 model = translation * rotation * scale;
+				// Matrice du model
+				mat4 model = translation * rotation * scale;
 
-				glUniformMatrix4fv(modelID, 1, GL_FALSE, glm::value_ptr(model));
+				glUniformMatrix4fv(modelID2, 1, GL_FALSE, glm::value_ptr(model));
 				glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, 0);
-
-				update();
 			}
 		}
 	}
 
+	// Mise à jour du framebuffer
+	update();
+
 	// unbind
 	glBindVertexArray(0);
-	glUseProgram(0);
+	shader2->unbind();
 }
 
 Animation2::~Animation2()
 {
-	glDeleteBuffers(1, &bufferID);
-	glDeleteBuffers(1, &elementID);
-	glDeleteProgram(shader->id());
+	glDeleteBuffers(1, &bufferID2);
+	glDeleteBuffers(1, &elementID2);
+	
+	delete shader2;
 }
 
 void Animation2::enregistrerImage(){

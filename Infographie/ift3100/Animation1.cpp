@@ -1,241 +1,300 @@
 #include <GL\glew.h>
+
+#include <Include\Camera.hpp>
+#include <Include\Macros.hpp>
+#include <Include\Shader.hpp>
+#include <Primitives\ShapeGenerator.h>
+
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
+#include <glm\gtc\type_ptr.hpp>
 #include <glm\gtx\transform.hpp>
+
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include <Primitives\Vertex.h>
-#include <Primitives\ShapeGenerator.h>
+
 #include <fstream>
 #include <iostream>
-#include "Animation1.h"
-#include "Include\Camera.hpp"
 #include <qfiledialog.h>
+
+#include "Animation1.h"
+
+
 using namespace std;
+using glm::vec2;
 using glm::vec3;
+using glm::vec4;
 using glm::mat4;
 
 
-GLuint programID;
-GLuint numIndices;
-int mBackground = 1;
+/*-----------------------------------------------------------------------------
+*  CODE DU SHADER
+*-----------------------------------------------------------------------------*/
 
-float mRotation = 0.0f;
+const char * vert = GLSL(
 
-int Compteur = 0;
-bool blnZoom = true;
-int Direction = 1;
+	150,  // version de GLSL
+
+	in vec3 position;
+	in vec3 color;
+
+	uniform mat4 model;
+	uniform mat4 view;
+	uniform mat4 projection;
+
+	out vec3 vertexShaderColor;
+
+	void main()
+	{
+		vec4 v = vec4(position, 1.0);
+		gl_Position = projection * view * model * v;
+		vertexShaderColor = color;
+	}
+);
+
+const char * frag = GLSL(
+
+	150,  // version de GLSL
+
+	in vec3 vertexShaderColor;
+	out vec4 fragmentShaderColor;
+
+	void main()
+	{
+		fragmentShaderColor = vec4(vertexShaderColor, 1.0);
+	}
+);
+
+
+/*-----------------------------------------------------------------------------
+*  VARIABLES GLOBALES
+*-----------------------------------------------------------------------------*/
+
+Shader * shader;
 Camera camera;
 
-Animation1::~Animation1()
-{
-	glUseProgram(0);
-	glDeleteProgram(programID);
-}
+// ID de Vertex Attribute
+GLuint positionID, colorID;
+// Buffer ID
+GLuint bufferID, elementID;
+// Array ID
+GLuint cubeArrayID, pyramidArrayID;
+// ID Uniform
+GLuint modelID, viewID, projectionID;
+
+// Nombre d'indices
+GLuint cubeNumIndices, pyramidNumIndices;
+
 
 void Animation1::initializeGL()
 {
 	OpenGL::initializeGL();
-		
-	sendDataToOpenGL();
-	installShaders();
 	
-	//mise en place d'un timer de refresh
-	QObject::connect(&mDrawTimer, SIGNAL(timeout()), this, SLOT(update()));
-	mDrawTimer.start(500.0f);
+	installerShader();
+	envoyerData();
+}
+
+void Animation1::installerShader()
+{
+	// Création du shader
+	shader = new Shader(vert, frag);
+
+	// attribut locations
+	positionID = glGetAttribLocation(shader->id(), "position");
+	colorID = glGetAttribLocation(shader->id(), "color");
+
+	// uniform locations
+	modelID = glGetUniformLocation(shader->id(), "model");
+	viewID = glGetUniformLocation(shader->id(), "view");
+	projectionID = glGetUniformLocation(shader->id(), "projection");
+}
+
+void Animation1::envoyerData()
+{
+
+	/*-----------------------------------------------------------------------------
+	*  Cube
+	*-----------------------------------------------------------------------------*/
+
+	ShapeData cube = ShapeGenerator::makeCube();
+		
+	// vertex array object
+	glGenVertexArrays(1, &cubeArrayID);
+	glBindVertexArray(cubeArrayID);
+
+	// vertex buffer object
+	glGenBuffers(1, &bufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, bufferID);
+	glBufferData(GL_ARRAY_BUFFER, cube.vertexBufferSize(), cube.vertices, GL_STATIC_DRAW);
+
+	// element array buffer object
+	glGenBuffers(1, &elementID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, cube.indexBufferSize(), cube.indices, GL_STATIC_DRAW);
+
+	// vertex attributes
+	glEnableVertexAttribArray(positionID);
+	glEnableVertexAttribArray(colorID);
+	glVertexAttribPointer(positionID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+	glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) sizeof(vec3));
+
+	cubeNumIndices = cube.numIndices;
+
+	// unbind
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	cube.destroy();
+
+
+	/*-----------------------------------------------------------------------------
+	*  Pyramide
+	*-----------------------------------------------------------------------------*/
+
+	ShapeData pyramide = ShapeGenerator::makePyramid();
+
+	// vertex array object
+	glGenVertexArrays(1, &pyramidArrayID);
+	glBindVertexArray(pyramidArrayID);
+
+	// vertex buffer object
+	glGenBuffers(1, &bufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, bufferID);
+	glBufferData(GL_ARRAY_BUFFER, pyramide.vertexBufferSize(), pyramide.vertices, GL_STATIC_DRAW);
+
+	// element array buffer object
+	glGenBuffers(1, &elementID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, pyramide.indexBufferSize(), pyramide.indices, GL_STATIC_DRAW);
+
+	// vertex attributes
+	glEnableVertexAttribArray(positionID);
+	glEnableVertexAttribArray(colorID);
+	glVertexAttribPointer(positionID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+	glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) sizeof(vec3));
+
+	pyramidNumIndices = pyramide.numIndices;
+
+	// unbind
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	pyramide.destroy();
+
 }
 
 void Animation1::paintGL()
 {
-	
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	
-	mBackground *= -1;
-	
-	if (blnZoom)
-	{
-		if (Direction == 1)
-		{
+	OpenGL::paintGL();
 
-			camera.moveBackward();
-			Compteur++;
-		}
-		else
-		{
-			camera.moveForward();
-			Compteur++;
-		}
-	}
-	else
-	{
-		if (Direction == 1)
-		{
+	
+	static float time = 0.0;
+	time += .01;
 
-			camera.strafeLeft();
-			Compteur++;
-		}
-		else
-		{
-			camera.strafeRight();
-			Compteur++;
-		}
-	}
-	
-	
-	
-	//Dessin des cubes avec la rotation d'un des cubes
-	mat4 projectionMatrix = glm::perspective(1.6f, ((float)width()) / height(), 0.1f, 10.0f);
-	mat4 fullTransforms[] =
-	{
-		projectionMatrix * camera.getViewMatrix() * glm::translate(vec3(-1.0f, 0.0f, -3.0f)) * glm::rotate(0.69f + mRotation, vec3(1.0f, 0.0f, 0.0f)) * glm::scale(vec3(0.5f, 1.0f, 1.0f)),
-	};
-	glBufferData(GL_ARRAY_BUFFER, sizeof(fullTransforms), fullTransforms, GL_DYNAMIC_DRAW);
 
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-	glViewport(0, 0, width(), height());
-	glDrawElementsInstanced(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0, 2);
-	
-	mRotation += 0.1f;
-	
-	if (Compteur == 10 && blnZoom)
-	{
-		Direction *= -1;
-	}
-	else if (Compteur == 20 && blnZoom)
-	{
-		blnZoom = false;
-		Direction *= -1;
-		Compteur = 0;
-	}
-	else if (Compteur == 25 && !blnZoom)
-	{
-		Direction *= -1;
-	}
-	else if (Compteur == 50 && !blnZoom)
-	{
-		blnZoom = true;
-		Direction *= -1;
-		Compteur = 0;
-	}
-	
+	// Bind Shader
+	shader->bind();
+
+
+	/*-----------------------------------------------------------------------------
+	*  Matrices : View & Projection
+	*-----------------------------------------------------------------------------*/
+
+	// View : avec la classe Camera
+	mat4 view = camera.getViewMatrix();
+	glUniformMatrix4fv(viewID, 1, GL_FALSE, glm::value_ptr(view));
+
+	// Projection
+	mat4 proj = glm::perspective(1.0f, ((float)width()) / height(), 0.1f, 20.0f);
+	glUniformMatrix4fv(projectionID, 1, GL_FALSE, glm::value_ptr(proj));
+
+
+	/*-----------------------------------------------------------------------------
+	*  Cube
+	*-----------------------------------------------------------------------------*/
+
+	glBindVertexArray(cubeArrayID);
+
+	// transformations à appliquer au cube
+	mat4 cubeTranslation = glm::translate(vec3(-1.5f, 0.0f, -6.0f));
+	mat4 cubeRotation = glm::rotate(time, vec3(0.0f, 1.0f, 0.0f)) *
+					    glm::rotate(-0.5f, vec3(1.0f, 0.0f, 0.0f));
+
+	// Model
+	mat4 cubeModel = cubeTranslation * cubeRotation;
+	glUniformMatrix4fv(modelID, 1, GL_FALSE, glm::value_ptr(cubeModel));
+
+	// Dessin du cube
+	glDrawElements(GL_QUADS, cubeNumIndices, GL_UNSIGNED_SHORT, 0);
+
+
+	/*-----------------------------------------------------------------------------
+	*  Pyramide
+	*-----------------------------------------------------------------------------*/
+
+	glBindVertexArray(pyramidArrayID);
+
+	// transformations à appliquer au cube
+	mat4 pyramidTranslation = glm::translate(vec3(1.5f, 0.0f, -5.0f));
+	mat4 pyramidRotation = glm::rotate(-time, vec3(0.0f, 1.0f, 0.0f)) *
+		                   glm::rotate(-0.2f, vec3(1.0f, 0.0f, 0.0f));
+
+	// Model
+	mat4 pyramidModel = pyramidTranslation * pyramidRotation;
+	glUniformMatrix4fv(modelID, 1, GL_FALSE, glm::value_ptr(pyramidModel));
+
+	// Dessin du cube
+	glDrawElements(GL_TRIANGLES, pyramidNumIndices, GL_UNSIGNED_SHORT, 0);
+
+	update();
+
+	// unbind
+	glBindVertexArray(0);
+	shader->unbind();
 }
 
-void Animation1::sendDataToOpenGL()
+Animation1::~Animation1()
 {
-	ShapeData shape = ShapeGenerator::makeCube();
-	GLuint vertexBufferID;
-	glGenBuffers(1, &vertexBufferID);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-	glBufferData(GL_ARRAY_BUFFER, shape.vertexBufferSize(), shape.vertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (char*)(sizeof(float) * 3));
+	glDeleteBuffers(1, &bufferID);
+	glDeleteBuffers(1, &elementID);
 
-	GLuint indexArrayBufferID;
-	glGenBuffers(1, &indexArrayBufferID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexArrayBufferID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, shape.indexBufferSize(), shape.indices, GL_STATIC_DRAW);
-	numIndices = shape.numIndices;
-	shape.destroy();
-
-	GLuint transformationMatrixBufferID;
-	glGenBuffers(1, &transformationMatrixBufferID);
-	glBindBuffer(GL_ARRAY_BUFFER, transformationMatrixBufferID);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mat4) * 2, 0, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(mat4), (void*)(sizeof(float) * 0));
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(mat4), (void*)(sizeof(float) * 4));
-	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(mat4), (void*)(sizeof(float) * 8));
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(mat4), (void*)(sizeof(float) * 12));
-	glEnableVertexAttribArray(2);
-	glEnableVertexAttribArray(3);
-	glEnableVertexAttribArray(4);
-	glEnableVertexAttribArray(5);
-	glVertexAttribDivisor(2, 1);
-	glVertexAttribDivisor(3, 1);
-	glVertexAttribDivisor(4, 1);
-	glVertexAttribDivisor(5, 1);
+	delete shader;
 }
 
-void Animation1::installShaders()
+void Animation1::mouseMoveEvent(QMouseEvent* e)
 {
-	GLuint vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-	GLuint fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+	camera.mouseUpdate(vec2(e->x(), e->y()));
 
-	const GLchar* adapter[1];
-	string temp = readShaderCode("VertexShaderCode.glsl");
-	adapter[0] = temp.c_str();
-	glShaderSource(vertexShaderID, 1, adapter, 0);
-	temp = readShaderCode("FragmentShaderCode.glsl");
-	adapter[0] = temp.c_str();
-	glShaderSource(fragmentShaderID, 1, adapter, 0);
-
-	glCompileShader(vertexShaderID);
-	glCompileShader(fragmentShaderID);
-
-	if (!checkShaderStatus(vertexShaderID) || !checkShaderStatus(fragmentShaderID))
-		return;
-
-	//GLuint programID = glCreateProgram();
-	programID = glCreateProgram();
-	glAttachShader(programID, vertexShaderID);
-	glAttachShader(programID, fragmentShaderID);
-
-	glBindAttribLocation(programID, 0, "position");
-	glBindAttribLocation(programID, 1, "vertexColor");
-	glBindAttribLocation(programID, 2, "fullTransformMatrix");
-
-	glLinkProgram(programID);
-
-	if (!checkProgramStatus(programID))
-		return;
-
-	glDeleteShader(vertexShaderID);
-	glDeleteShader(fragmentShaderID);
-
-	glUseProgram(programID);
+	update();
 }
 
-bool Animation1::checkShaderStatus(GLuint shaderID)
+void Animation1::keyPressEvent(QKeyEvent* e)
 {
-	GLint compileStatus;
-	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compileStatus);
-	if (compileStatus != GL_TRUE)
+	switch (e->key())
 	{
-		GLint infoLogLength;
-		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
-		GLchar* buffer = new GLchar[infoLogLength];
-
-		GLsizei bufferSize;
-		glGetShaderInfoLog(shaderID, infoLogLength, &bufferSize, buffer);
-		cout << buffer << endl << endl;
-		delete[] buffer;
-
-		return false;
+	case Qt::Key::Key_W:
+		camera.moveForward();
+		break;
+	case Qt::Key::Key_S:
+		camera.moveBackward();
+		break;
+	case Qt::Key::Key_A:
+		camera.moveLeft();
+		break;
+	case Qt::Key::Key_D:
+		camera.moveRight();
+		break;
+	case Qt::Key::Key_R:
+		camera.moveUp();
+		break;
+	case Qt::Key::Key_F:
+		camera.moveDown();
+		break;
 	}
-	return true;
-}
 
-bool Animation1::checkProgramStatus(GLuint programID)
-{
-	GLint linkStatus;
-	glGetProgramiv(programID, GL_LINK_STATUS, &linkStatus);
-	if (linkStatus != GL_TRUE)
-	{
-		GLint infoLogLength;
-		glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &infoLogLength);
-		GLchar* buffer = new GLchar[infoLogLength];
-
-		GLsizei bufferSize;
-		glGetProgramInfoLog(programID, infoLogLength, &bufferSize, buffer);
-		cout << buffer << endl << endl;
-		delete[] buffer;
-		
-		return false;
-	}
-	return true;
+	update();
 }
 
 string Animation1::readShaderCode(const char* fileName)
@@ -254,9 +313,7 @@ string Animation1::readShaderCode(const char* fileName)
 }
 
 void Animation1::enregistrerImage(){
-	mDrawTimer.stop();
 	QImage imageFrame = grabFramebuffer();
 	QString file = QFileDialog::getSaveFileName(this, "Save as...", "name", "PNG (*.png);; BMP (*.bmp);;TIFF (*.tiff *.tif);; JPEG (*.jpg *.jpeg)");
 	imageFrame.save(file, "JPEG");
-	mDrawTimer.start(500.0f);
 }

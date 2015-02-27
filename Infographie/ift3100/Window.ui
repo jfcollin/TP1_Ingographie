@@ -10,11 +10,14 @@
     <height>768</height>
    </rect>
   </property>
+  <property name="focusPolicy">
+   <enum>Qt::NoFocus</enum>
+  </property>
   <property name="windowTitle">
    <string>Démo OpenGL</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout_3">
+   <layout class="QVBoxLayout" name="verticalLayout_4">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -32,6 +35,9 @@
     </property>
     <item>
      <widget class="QTabWidget" name="tabWidget">
+      <property name="focusPolicy">
+       <enum>Qt::TabFocus</enum>
+      </property>
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>
@@ -45,6 +51,9 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="tabWidgetPage1">
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
        <attribute name="title">
         <string>Scène 1</string>
        </attribute>
@@ -65,7 +74,14 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="Animation1" name="openGLWidget"/>
+         <widget class="Animation1" name="openGLWidget">
+          <property name="mouseTracking">
+           <bool>true</bool>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -101,6 +117,35 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tabWidgetPage3">
+       <attribute name="title">
+        <string>Scène 3</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="Animation3" name="openGLWidget_3">
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -127,6 +172,11 @@
    <class>Animation2</class>
    <extends>QOpenGLWidget</extends>
    <header>Animation2.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Animation3</class>
+   <extends>QOpenGLWidget</extends>
+   <header>Animation3.h</header>
   </customwidget>
  </customwidgets>
  <resources>

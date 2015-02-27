@@ -1,11 +1,16 @@
 #include "ShapeGenerator.h"
-
-#include <glm\glm.hpp>
 #include <Primitives\Vertex.h>
 
+#include <glm\glm.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+
+#define PI 3.14159265359
 #define NUM_ARRAY_ELEMENTS(x) sizeof(x) / sizeof(*x);
 
 using glm::vec3;
+using glm::mat3;
+using glm::mat4;
+
 
 ShapeData ShapeGenerator::makeTriangle()
 {
@@ -35,82 +40,112 @@ ShapeData ShapeGenerator::makeTriangle()
 	return out;
 }
 
-ShapeData ShapeGenerator::makeCube(){
-
+ShapeData ShapeGenerator::makeCube()
+{
 	ShapeData out;
 	
-	Vertex stackVerts[] = {
-		vec3(-1.0f, +1.0f, +1.0f), // 0
+	Vertex cube[] = {
+
+		vec3(+1.0f, -1.0f, +1.0f), // 0
 		vec3(+1.0f, +0.0f, +0.0f), // Colour
+
 		vec3(+1.0f, +1.0f, +1.0f), // 1
 		vec3(+0.0f, +1.0f, +0.0f), // Colour
-		vec3(+1.0f, +1.0f, -1.0f), // 2
+
+		vec3(-1.0f, +1.0f, +1.0f), // 2
 		vec3(+0.0f, +0.0f, +1.0f), // Colour
-		vec3(-1.0f, +1.0f, -1.0f), // 3
-		vec3(+1.0f, +1.0f, +1.0f), // Colour
 
-		vec3(-1.0f, +1.0f, -1.0f), // 4
-		vec3(+1.0f, +0.0f, +1.0f), // Colour
+		vec3(-1.0f, -1.0f, +1.0f), // 3
+		vec3(+1.0f, +0.0f, +0.0f), // Colour
+
+		vec3(+1.0f, -1.0f, -1.0f), // 4
+		vec3(+0.0f, +0.0f, +1.0f), // Colour
+
 		vec3(+1.0f, +1.0f, -1.0f), // 5
-		vec3(+0.0f, +0.5f, +0.2f), // Colour
-		vec3(+1.0f, -1.0f, -1.0f), // 6
-		vec3(+0.8f, +0.6f, +0.4f), // Colour
+		vec3(+1.0f, +0.0f, +0.0f), // Colour
+
+		vec3(-1.0f, +1.0f, -1.0f), // 6
+		vec3(+0.0f, +0.0f, +1.0f), // Colour
+
 		vec3(-1.0f, -1.0f, -1.0f), // 7
-		vec3(+0.3f, +1.0f, +0.5f), // Colour
+		vec3(+0.0f, +1.0f, +0.0f), // Colour
 
-		vec3(+1.0f, +1.0f, -1.0f), // 8
-		vec3(+0.2f, +0.5f, +0.2f), // Colour
-		vec3(+1.0f, +1.0f, +1.0f), // 9
-		vec3(+0.9f, +0.3f, +0.7f), // Colour
-		vec3(+1.0f, -1.0f, +1.0f), // 10
-		vec3(+0.3f, +0.7f, +0.5f), // Colour
-		vec3(+1.0f, -1.0f, -1.0f), // 11
-		vec3(+0.5f, +0.7f, +0.5f), // Colour
-
-		vec3(-1.0f, +1.0f, +1.0f), // 12
-		vec3(+0.7f, +0.8f, +0.2f), // Colour
-		vec3(-1.0f, +1.0f, -1.0f), // 13
-		vec3(+0.5f, +0.7f, +0.3f), // Colour
-		vec3(-1.0f, -1.0f, -1.0f), // 14
-		vec3(+0.4f, +0.7f, +0.7f), // Colour
-		vec3(-1.0f, -1.0f, +1.0f), // 15
-		vec3(+0.2f, +0.5f, +1.0f), // Colour
-
-		vec3(+1.0f, +1.0f, +1.0f), // 16
-		vec3(+0.6f, +1.0f, +0.7f), // Colour
-		vec3(-1.0f, +1.0f, +1.0f), // 17
-		vec3(+0.6f, +0.4f, +0.8f), // Colour
-		vec3(-1.0f, -1.0f, +1.0f), // 18
-		vec3(+0.2f, +0.8f, +0.7f), // Colour
-		vec3(+1.0f, -1.0f, +1.0f), // 19
-		vec3(+0.2f, +0.7f, +1.0f), // Colour
-
-		vec3(+1.0f, -1.0f, -1.0f), // 20
-		vec3(+0.8f, +0.3f, +0.7f), // Colour
-		vec3(-1.0f, -1.0f, -1.0f), // 21
-		vec3(+0.8f, +0.9f, +0.5f), // Colour
-		vec3(-1.0f, -1.0f, +1.0f), // 22
-		vec3(+0.5f, +0.8f, +0.5f), // Colour
-		vec3(+1.0f, -1.0f, +1.0f), // 23
-		vec3(+0.9f, +1.0f, +0.2f), // Colour
 	};
 
-	out.numVertices = NUM_ARRAY_ELEMENTS(stackVerts);
+	out.numVertices = NUM_ARRAY_ELEMENTS(cube);
 	out.vertices = new Vertex[out.numVertices];
-	memcpy(out.vertices, stackVerts, sizeof(stackVerts));
+	memcpy(out.vertices, cube, sizeof(cube));
 
-	GLushort stackIndices[] = {
-		 0,  1,  2,  0,  2,  3, // Top
-		 4,  5,  6,  4,  6,  7, // Front
-		 8,  9, 10,  8, 10, 11, // Right
-		12, 13, 14, 12, 14, 15, // Left
-		16, 17, 18, 16, 18, 19, // Back
-		20, 22, 21, 20, 23, 22, // Bottom
+
+	    //6-------------/5
+	  //  .           // |
+	//2--------------1   |
+	//    .          |   |
+	//    .          |   |
+	//    .          |   |
+	//    .          |   |
+	//    7.......   |   /4
+	//               | //
+	//3--------------/0
+
+	GLushort indices[] = {
+
+		0, 1, 2, 3,	//devant
+		7, 6, 5, 4,	//derriere
+		3, 2, 6, 7, //gauche
+		4, 5, 1, 0, //droite
+		1, 5, 6, 2, //dessus
+		4, 0, 3, 7  //dessous
+
 	};
 
-	out.numIndices = NUM_ARRAY_ELEMENTS(stackIndices);
+	out.numIndices = NUM_ARRAY_ELEMENTS(indices);
 	out.indices = new GLushort[out.numIndices];
-	memcpy(out.indices, stackIndices, sizeof(stackIndices));
+	memcpy(out.indices, indices, sizeof(indices));
+
+	return out;
+}
+
+ShapeData ShapeGenerator::makePyramid()
+{
+	ShapeData out;
+
+	Vertex pyramide[] = {
+
+		vec3(+1.0f, +0.0f, +1.0f), // 0
+		vec3(+1.0f, +0.0f, +0.0f), // Colour
+
+		vec3(+1.0f, +0.0f, -1.0f), // 1
+		vec3(+0.0f, +1.0f, +0.0f), // Colour
+
+		vec3(-1.0f, +0.0f, -1.0f), // 2
+		vec3(+0.0f, +0.0f, +1.0f), // Colour
+
+		vec3(-1.0f, +0.0f, +1.0f), // 3
+		vec3(+1.0f, +0.0f, +0.0f), // Colour
+
+		vec3(+0.0f, +1.0f, +0.0f), // 4
+		vec3(+0.0f, +1.0f, +0.0f), // Colour
+	};
+
+	out.numVertices = NUM_ARRAY_ELEMENTS(pyramide);
+	out.vertices = new Vertex[out.numVertices];
+	memcpy(out.vertices, pyramide, sizeof(pyramide));
+
+	GLushort indices[] = {
+
+		0, 3, 4,  //devant
+		1, 0, 4,  //droite
+		2, 1, 4,  //derrière
+		3, 2, 4,  //gauche
+		2, 0, 3,  //dessous
+		2, 1, 0,  //dessous
+
+	};
+
+	out.numIndices = NUM_ARRAY_ELEMENTS(indices);
+	out.indices = new GLushort[out.numIndices];
+	memcpy(out.indices, indices, sizeof(indices));
 
 	return out;
 }
