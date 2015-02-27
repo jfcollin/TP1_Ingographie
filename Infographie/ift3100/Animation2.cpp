@@ -8,6 +8,7 @@ Animation2::~Animation2()
 
 void Animation2::initializeGL()
 {
+	OpenGL::initializeGL();
 }
 
 void Animation2::paintGL()
