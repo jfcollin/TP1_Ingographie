@@ -71,7 +71,7 @@
       </widget>
       <widget class="QWidget" name="tabWidgetPage2">
        <attribute name="title">
-        <string>Scène2</string>
+        <string>Scène 2</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <property name="spacing">

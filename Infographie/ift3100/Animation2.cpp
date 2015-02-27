@@ -138,7 +138,7 @@ void Animation2::paintGL()
 	*  Matrices de View et de Projection
 	*-----------------------------------------------------------------------------*/
 
-	glm::vec3 eyepos = glm::vec3(cos(time) * 1.0, 0, sin(time)*5.0);
+	glm::vec3 eyepos = glm::vec3(cos(time) * 1.0, 0, sin(time) * 5.0);
 
 	//                            eye         target             up
 	glm::mat4 view = glm::lookAt(eyepos, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
@@ -182,10 +182,17 @@ void Animation2::paintGL()
 			}
 		}
 	}
+
+	// unbind
+	glBindVertexArray(0);
+	glUseProgram(0);
 }
 
 Animation2::~Animation2()
 {
+	glDeleteBuffers(1, &bufferID);
+	glDeleteBuffers(1, &elementID);
+	glDeleteProgram(shader->id());
 }
 
 void Animation2::enregistrerImage(){
