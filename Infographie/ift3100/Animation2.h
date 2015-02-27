@@ -6,7 +6,7 @@
 class Animation2 : public OpenGL
 {
 protected:
-	void initializeGL();
+	virtual void initializeGL();
 	virtual void paintGL();
 
 public:

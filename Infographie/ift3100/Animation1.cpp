@@ -9,7 +9,7 @@
 #include <fstream>
 #include <iostream>
 #include "Animation1.h"
-#include "Camera.h"
+#include "Include\Camera.hpp"
 #include <qfiledialog.h>
 using namespace std;
 using glm::vec3;
@@ -35,16 +35,8 @@ Animation1::~Animation1()
 
 void Animation1::initializeGL()
 {
-	// Initialisation de GLEW
-	GLenum err = glewInit();
-	if (GLEW_OK != err)
-	{
-		// glewInit ne fonctionne pas...
-		fprintf(stderr, "Erreur: %s\n", glewGetErrorString(err));
-	}
-
-	glEnable(GL_DEPTH_TEST);
-
+	OpenGL::initializeGL();
+		
 	sendDataToOpenGL();
 	installShaders();
 	

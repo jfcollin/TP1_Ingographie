@@ -7,7 +7,7 @@
 class Animation1 : public OpenGL
 {
 protected:
-	void initializeGL();
+	virtual void initializeGL();
 	virtual void paintGL();
 	void sendDataToOpenGL();
 	void installShaders();

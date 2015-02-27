@@ -1,17 +1,13 @@
 #include <GL\glew.h>
 #include "OpenGL.h"
 
+#include <iostream>
 
 void OpenGL::initializeGL()
 {	
-	// Initialisation de GLEW
-	GLenum err = glewInit();
-	if (GLEW_OK != err)
-	{
-		// glewInit ne fonctionne pas...
-		fprintf(stderr, "Erreur: %s\n", glewGetErrorString(err));
-	}
-	
+	glewInit();
+
+	glEnable(GL_DEPTH_TEST);
 }
 
 void OpenGL::paintGL()

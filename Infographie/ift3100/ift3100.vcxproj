@@ -77,7 +77,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Animation2.cpp" />
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_Window.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -119,7 +118,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation2.h" />
-    <ClInclude Include="Camera.h" />
     <ClInclude Include="GeneratedFiles\ui_Window.h" />
     <ClInclude Include="Animation1.h" />
     <ClInclude Include="Include\Camera.hpp" />
