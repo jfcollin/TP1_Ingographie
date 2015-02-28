@@ -52,7 +52,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(ProjectDir)..\Utilitaires\glew\lib;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -77,6 +77,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Animation2.cpp" />
+    <ClCompile Include="Animation3.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_Window.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -118,13 +119,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation2.h" />
+    <ClInclude Include="Animation3.h" />
     <ClInclude Include="GeneratedFiles\ui_Window.h" />
     <ClInclude Include="Animation1.h" />
     <ClInclude Include="Include\Camera.hpp" />
+    <ClInclude Include="Include\Data.hpp" />
     <ClInclude Include="Include\Macros.hpp" />
+    <ClInclude Include="Include\Mesh.hpp" />
     <ClInclude Include="Include\Shader.hpp" />
+    <ClInclude Include="Include\Texture.hpp" />
     <ClInclude Include="Primitives\ShapeData.h" />
     <ClInclude Include="Primitives\ShapeGenerator.h" />
+    <ClInclude Include="Primitives\Teapot.h" />
     <ClInclude Include="Primitives\Vertex.h" />
     <CustomBuild Include="OpenGL.h" />
   </ItemGroup>
