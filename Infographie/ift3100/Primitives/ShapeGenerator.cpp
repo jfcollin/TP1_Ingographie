@@ -7,8 +7,10 @@
 #define PI 3.14159265359
 #define NUM_ARRAY_ELEMENTS(x) sizeof(x) / sizeof(*x);
 
+
+using glm::vec2;
 using glm::vec3;
-using glm::mat3;
+using glm::vec4;
 using glm::mat4;
 
 
@@ -18,14 +20,20 @@ ShapeData ShapeGenerator::makeTriangle()
 
 	Vertex triangle[] =
 	{
-		vec3(-1.0f, +0.0f, +0.0f),
-		vec3(+1.0f, +0.0f, +0.0f),
+		vec3(-1.0f, +0.0f, +0.0f),			// 0
+		vec3(-1.0f, +0.0f, +0.0f),			// Normal
+		vec2(+0.0f, +0.0f),					// Texture Coord
+		vec4(+1.0f, +0.0f, +0.0f, +1.0f),	// Color
+		
+		vec3(+0.0f, +1.0f, +0.0f),			// 1 
+		vec3(+0.0f, +1.0f, +0.0f),			// Normal 
+		vec2(+0.0f, +0.0f),					// Texture Coord
+		vec4(+0.0f, +1.0f, +0.0f, +1.0f),	// Color
 
-		vec3(+0.0f, +1.0f, +0.0f),
-		vec3(+0.0f, +1.0f, +0.0f),
-
-		vec3(+1.0f, +0.0f, +0.0f),
-		vec3(+0.0f, +0.0f, +1.0f),
+		vec3(+1.0f, +0.0f, +0.0f),			// 2 
+		vec3(+1.0f, +0.0f, +0.0f),			// Normal
+		vec2(+0.0f, +0.0f),					// Texture Coord
+		vec4(+0.0f, +0.0f, +1.0f, +1.0f),	// Color 
 	};
 
 	out.numVertices = NUM_ARRAY_ELEMENTS(triangle);
@@ -46,29 +54,45 @@ ShapeData ShapeGenerator::makeCube()
 	
 	Vertex cube[] = {
 
-		vec3(+1.0f, -1.0f, +1.0f), // 0
-		vec3(+1.0f, +0.0f, +0.0f), // Colour
+		vec3(+1.0f, -1.0f, +1.0f),			// 0
+		vec3(+1.0f, -1.0f, +1.0f),			// Normal
+		vec2(+1.0f, +0.0f),					// Texture Coord
+		vec4(+1.0f, +0.0f, +0.0f, +1.0f),	// Color
 
-		vec3(+1.0f, +1.0f, +1.0f), // 1
-		vec3(+0.0f, +1.0f, +0.0f), // Colour
+		vec3(+1.0f, +1.0f, +1.0f),			// 1
+		vec3(+1.0f, +1.0f, +1.0f),			// Normal
+		vec2(+1.0f, +1.0f),					// Texture Coord
+		vec4(+0.0f, +1.0f, +0.0f, +1.0f),	// Color
 
-		vec3(-1.0f, +1.0f, +1.0f), // 2
-		vec3(+0.0f, +0.0f, +1.0f), // Colour
+		vec3(-1.0f, +1.0f, +1.0f),			// 2
+		vec3(-1.0f, +1.0f, +1.0f),			// Normal
+		vec2(+0.0f, +1.0f),					// Texture Coord
+		vec4(+0.0f, +0.0f, +1.0f, +1.0f),	// Color
 
-		vec3(-1.0f, -1.0f, +1.0f), // 3
-		vec3(+1.0f, +0.0f, +0.0f), // Colour
+		vec3(-1.0f, -1.0f, +1.0f),			// 3
+		vec3(-1.0f, -1.0f, +1.0f),			// Normal
+		vec2(+0.0f, +0.0f),					// Texture Coord
+		vec4(+1.0f, +0.0f, +0.0f, +1.0f),	// Color
 
-		vec3(+1.0f, -1.0f, -1.0f), // 4
-		vec3(+0.0f, +0.0f, +1.0f), // Colour
+		vec3(+1.0f, -1.0f, -1.0f),			// 4
+		vec3(+1.0f, -1.0f, -1.0f),			// Normal
+		vec2(+0.0f, +0.0f),					// Texture Coord
+		vec4(+0.0f, +0.0f, +1.0f, +1.0f),	// Color
 
-		vec3(+1.0f, +1.0f, -1.0f), // 5
-		vec3(+1.0f, +0.0f, +0.0f), // Colour
+		vec3(+1.0f, +1.0f, -1.0f),			// 5
+		vec3(+1.0f, +1.0f, -1.0f),			// Normal
+		vec2(+0.0f, +1.0f),					// Texture Coord
+		vec4(+1.0f, +0.0f, +0.0f, +1.0f),	// Color
 
-		vec3(-1.0f, +1.0f, -1.0f), // 6
-		vec3(+0.0f, +0.0f, +1.0f), // Colour
+		vec3(-1.0f, +1.0f, -1.0f),			// 6
+		vec3(-1.0f, +1.0f, -1.0f),			// Normal
+		vec2(+1.0f, +1.0f),					// Texture Coord
+		vec4(+0.0f, +0.0f, +1.0f, +1.0f),	// Color
 
-		vec3(-1.0f, -1.0f, -1.0f), // 7
-		vec3(+0.0f, +1.0f, +0.0f), // Colour
+		vec3(-1.0f, -1.0f, -1.0f),			// 7
+		vec3(-1.0f, -1.0f, -1.0f),			// Normal
+		vec2(+1.0f, +0.0f),					// Texture Coord
+		vec4(+0.0f, +1.0f, +0.0f, +1.0f),	// Color
 
 	};
 
@@ -112,20 +136,30 @@ ShapeData ShapeGenerator::makePyramid()
 
 	Vertex pyramide[] = {
 
-		vec3(+1.0f, +0.0f, +1.0f), // 0
-		vec3(+1.0f, +0.0f, +0.0f), // Colour
+		vec3(+1.0f, +0.0f, +1.0f),			// 0
+		vec3(+1.0f, +0.0f, +1.0f),			// Normal
+		vec2(+0.0f, +0.0f),					// Texture Coord
+		vec4(+1.0f, +0.0f, +0.0f, +1.0f),	// Color
 
-		vec3(+1.0f, +0.0f, -1.0f), // 1
-		vec3(+0.0f, +1.0f, +0.0f), // Colour
+		vec3(+1.0f, +0.0f, -1.0f),			// 1
+		vec3(+1.0f, +0.0f, -1.0f),			// Normal
+		vec2(+0.0f, +0.0f),					// Texture Coord
+		vec4(+0.0f, +1.0f, +0.0f, +1.0f),	// Color
 
-		vec3(-1.0f, +0.0f, -1.0f), // 2
-		vec3(+0.0f, +0.0f, +1.0f), // Colour
+		vec3(-1.0f, +0.0f, -1.0f),			// 2
+		vec3(-1.0f, +0.0f, -1.0f),			// Normal
+		vec2(+0.0f, +0.0f),					// Texture Coord
+		vec4(+0.0f, +0.0f, +1.0f, +1.0f),	// Color
 
-		vec3(-1.0f, +0.0f, +1.0f), // 3
-		vec3(+1.0f, +0.0f, +0.0f), // Colour
+		vec3(-1.0f, +0.0f, +1.0f),			// 3
+		vec3(-1.0f, +0.0f, +1.0f),			// Normal
+		vec2(+0.0f, +0.0f),					// Texture Coord
+		vec4(+1.0f, +0.0f, +0.0f, +1.0f),	// Color
 
-		vec3(+0.0f, +1.0f, +0.0f), // 4
-		vec3(+0.0f, +1.0f, +0.0f), // Colour
+		vec3(+0.0f, +1.0f, +0.0f),			// 4
+		vec3(+0.0f, +1.0f, +0.0f),			// Normal
+		vec2(+0.0f, +0.0f),					// Texture Coord
+		vec4(+0.0f, +1.0f, +0.0f, +1.0f),	// Color
 	};
 
 	out.numVertices = NUM_ARRAY_ELEMENTS(pyramide);

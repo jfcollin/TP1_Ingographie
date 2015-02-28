@@ -14,6 +14,7 @@
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
+using glm::mat3;
 using glm::mat4;
 
 
@@ -26,19 +27,34 @@ const char * vert3 = GLSL(
 	150,  // version de GLSL
 
 	in vec3 position;
-	in vec3 color;
+	in vec3 normal;
+	in vec2 textureCoordinate;
+	in vec4 color;
 
-	uniform mat4 model;
-	uniform mat4 view;
 	uniform mat4 projection;
+	uniform mat4 view;
+	uniform mat4 model;
+	uniform mat3 normalMatrix;
 
-	out vec3 vertexShaderColor;
+	out vec2 texCoord;
+	out float diffuse;
 
-	void main()
+	// fonction pour calculer l'éclairage
+	float eclairage()
 	{
+		vec3 norm = normalize(normalMatrix * normalize(normal));
+		vec3 light = normalize(vec3(1.0, 1.0, 1.0));
+		diffuse = max(dot(norm, light), 0.0);
+
+		return diffuse;
+	}
+
+	void main(void)
+	{
+		diffuse = eclairage();
+		texCoord = textureCoordinate;
 		vec4 v = vec4(position, 1.0);
 		gl_Position = projection * view * model * v;
-		vertexShaderColor = color;
 	}
 );
 
@@ -46,12 +62,14 @@ const char * frag3 = GLSL(
 
 	150,  // version de GLSL
 
-	in vec3 vertexShaderColor;
-	out vec4 fragmentShaderColor;
+	uniform sampler2D sampler;
 
-	void main()
+	in vec2 texCoord;
+	in float diffuse;
+
+	void main(void)
 	{
-		fragmentShaderColor = vec4(vertexShaderColor, 1.0);
+		gl_FragColor = vec4(texture2D(sampler, texCoord).rgb * diffuse, 1.0);
 	}
 );
 
@@ -63,13 +81,25 @@ const char * frag3 = GLSL(
 Shader * shader3;
 
 // ID de Vertex Attribute
-GLuint positionID3, colorID3;
+GLuint positionID3, normalID3, colorID3, textureCoordinateID3;
 // Buffer ID
 GLuint bufferID3, elementID3;
 // Array ID
 GLuint arrayID3;
 // ID Uniform
-GLuint modelID3, viewID3, projectionID3;
+GLuint modelID3, viewID3, projectionID3, normalMatrixID3;
+// Texture ID
+GLuint texID3;
+
+/*-----------------------------------------------------------------------------
+*  Chargement d'une image
+*-----------------------------------------------------------------------------*/
+
+Bitmap image("Resources/texture_metal.bmp");
+
+int texWidth = image.width;
+int texHeight = image.height;
+
 
 
 
@@ -88,12 +118,15 @@ void Animation3::installerShader()
 
 	// attribut locations
 	positionID3 = glGetAttribLocation(shader3->id(), "position");
+	normalID3 = glGetAttribLocation(shader3->id(), "normal");
+	textureCoordinateID3 = glGetAttribLocation(shader3->id(), "textureCoordinate");
 	colorID3 = glGetAttribLocation(shader3->id(), "color");
 
 	// uniform locations
 	modelID3 = glGetUniformLocation(shader3->id(), "model");
 	viewID3 = glGetUniformLocation(shader3->id(), "view");
 	projectionID3 = glGetUniformLocation(shader3->id(), "projection");
+	normalMatrixID3 = glGetUniformLocation(shader3->id(), "normalMatrix");
 }
 
 void Animation3::envoyerData()
@@ -116,9 +149,13 @@ void Animation3::envoyerData()
 
 	// vertex attributes
 	glEnableVertexAttribArray(positionID3);
+	glEnableVertexAttribArray(normalID3);
+	glEnableVertexAttribArray(textureCoordinateID3);
 	glEnableVertexAttribArray(colorID3);
-	glVertexAttribPointer(positionID3, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
-	glVertexAttribPointer(colorID3, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*) sizeof(vec3));
+	glVertexAttribPointer(positionID3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+	glVertexAttribPointer(normalID3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)Vertex::offsetNormal());
+	glVertexAttribPointer(textureCoordinateID3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)Vertex::offsetTextureCoordinate());
+	glVertexAttribPointer(colorID3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)Vertex::offsetColor());
 
 	// unbind
 	glBindVertexArray(0);
@@ -126,12 +163,32 @@ void Animation3::envoyerData()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	cube.destroy();
+
+
+	/*-----------------------------------------------------------------------------
+	*  TEXTURE
+	*-----------------------------------------------------------------------------*/
+	
+	glGenTextures(1, &texID3);
+	glBindTexture(GL_TEXTURE_2D, texID3);
+
+	// Allocation de mémoire sur le GPU
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+	// Envoyer au GPU
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texWidth, texHeight, GL_BGR, GL_UNSIGNED_BYTE, image.pixels.data());
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// unbind texture
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Animation3::paintGL()
 {
 	glViewport(0, 0, width(), height());
-	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 
@@ -141,6 +198,7 @@ void Animation3::paintGL()
 	
 	// Bind Shader, Vertex Array Object
 	shader3->bind();
+	glBindTexture(GL_TEXTURE_2D, texID3);
 	glBindVertexArray(arrayID3);
 
 
@@ -148,12 +206,8 @@ void Animation3::paintGL()
 	*  Matrices : Model, View, Projection
 	*-----------------------------------------------------------------------------*/
 
-	// transformations à appliquer au cube
-	mat4 rotation = glm::rotate(mat4(), time, vec3(0, 1, 0));
-	mat4 scale = glm::scale(mat4(), vec3(sin(time) * 2, 1, 1));
-
 	// Model
-	mat4 model = rotation * scale;
+	mat4 model = glm::rotate(mat4(), time, vec3(0, 1, 0));
 	glUniformMatrix4fv(modelID3, 1, GL_FALSE, glm::value_ptr(model));
 
 	// View
@@ -161,8 +215,12 @@ void Animation3::paintGL()
 	glUniformMatrix4fv(viewID3, 1, GL_FALSE, glm::value_ptr(view));
 
 	// Projection
-	mat4 proj = glm::perspective(PI / 3.0f, ((float)width()) / height(), 0.1f, 10.0f);
+	mat4 proj = glm::perspective(PI / 3.0f, ((float)width()) / height(), 0.1f, 20.0f);
 	glUniformMatrix4fv(projectionID3, 1, GL_FALSE, glm::value_ptr(proj));
+
+	// Normalization
+	mat3 normalMatrix = glm::transpose(glm::inverse(mat3(view * model)));
+	glUniformMatrix3fv(normalID3, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
 	/*---------------------------------------------------------------------------*/
 

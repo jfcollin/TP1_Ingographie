@@ -36,13 +36,13 @@ const char * vert = GLSL(
 	150,  // version de GLSL
 
 	in vec3 position;
-	in vec3 color;
+	in vec4 color;
 
 	uniform mat4 model;
 	uniform mat4 view;
 	uniform mat4 projection;
 
-	out vec3 vertexShaderColor;
+	out vec4 vertexShaderColor;
 
 	void main()
 	{
@@ -56,12 +56,11 @@ const char * frag = GLSL(
 
 	150,  // version de GLSL
 
-	in vec3 vertexShaderColor;
-	out vec4 fragmentShaderColor;
+	in vec4 vertexShaderColor;
 
 	void main()
 	{
-		fragmentShaderColor = vec4(vertexShaderColor, 1.0);
+		gl_FragColor = vertexShaderColor;
 	}
 );
 
@@ -136,7 +135,7 @@ void Animation1::envoyerData()
 	glEnableVertexAttribArray(positionID);
 	glEnableVertexAttribArray(colorID);
 	glVertexAttribPointer(positionID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-	glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) sizeof(vec3));
+	glVertexAttribPointer(colorID, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)Vertex::offsetColor());
 
 	cubeNumIndices = cube.numIndices;
 
@@ -172,7 +171,7 @@ void Animation1::envoyerData()
 	glEnableVertexAttribArray(positionID);
 	glEnableVertexAttribArray(colorID);
 	glVertexAttribPointer(positionID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-	glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) sizeof(vec3));
+	glVertexAttribPointer(colorID, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)Vertex::offsetColor());
 
 	pyramidNumIndices = pyramide.numIndices;
 
@@ -221,9 +220,10 @@ void Animation1::paintGL()
 	mat4 cubeTranslation = glm::translate(vec3(-1.5f, 0.0f, -6.0f));
 	mat4 cubeRotation = glm::rotate(time, vec3(0.0f, 1.0f, 0.0f)) *
 					    glm::rotate(-0.5f, vec3(1.0f, 0.0f, 0.0f));
+	mat4 cubeScale = glm::scale(vec3(sin(time) * 2, 1, 1));
 
 	// Model
-	mat4 cubeModel = cubeTranslation * cubeRotation;
+	mat4 cubeModel = cubeTranslation * cubeRotation * cubeScale;
 	glUniformMatrix4fv(modelID, 1, GL_FALSE, glm::value_ptr(cubeModel));
 
 	// Dessin du cube

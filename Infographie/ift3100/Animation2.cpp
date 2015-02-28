@@ -10,7 +10,6 @@
 #include "Animation2.h"
 
 
-using glm::vec2;
 using glm::vec3;
 using glm::vec4;
 using glm::mat4;
@@ -25,13 +24,13 @@ const char * vert2 = GLSL(
 	150,  // version de GLSL
 
 	in vec3 position;
-	in vec3 color;
+	in vec4 color;
 
 	uniform mat4 model;
 	uniform mat4 view;
 	uniform mat4 projection;
 
-	out vec3 vertexShaderColor;
+	out vec4 vertexShaderColor;
 
 	void main()
 	{
@@ -45,12 +44,11 @@ const char * frag2 = GLSL(
 	
 	150,  // version de GLSL
 
-	in vec3 vertexShaderColor;
-	out vec4 fragmentShaderColor;
+	in vec4 vertexShaderColor;
 
 	void main()
 	{
-		fragmentShaderColor = vec4(vertexShaderColor, 1.0);
+		gl_FragColor = vertexShaderColor;
 	}
 );
 
@@ -116,8 +114,8 @@ void Animation2::envoyerData()
 	// vertex attributes
 	glEnableVertexAttribArray(positionID2);
 	glEnableVertexAttribArray(colorID2);
-	glVertexAttribPointer(positionID2, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
-	glVertexAttribPointer(colorID2, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*) sizeof(vec3));
+	glVertexAttribPointer(positionID2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+	glVertexAttribPointer(colorID2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)Vertex::offsetColor());
 
 	// unbind
 	glBindVertexArray(0);

@@ -140,7 +140,7 @@
         <item>
          <widget class="Animation3" name="openGLWidget_3">
           <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
+           <enum>Qt::StrongFocus</enum>
           </property>
          </widget>
         </item>
